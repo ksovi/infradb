@@ -14,7 +14,7 @@ import (
 )
 
 type Host struct {
-	Id       int    `json: "id"`
+	Id       int    `json:"id"`
 	Hostname string `json:"hostname"`
 	Ip       string `json:"ip"`
 	Os       string `json:"os"`
@@ -24,6 +24,7 @@ type Host struct {
 }
 
 var dbpath string
+var dbport int
 
 func returnAllHosts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: returnAllHosts")
@@ -32,11 +33,11 @@ func returnAllHosts(w http.ResponseWriter, r *http.Request) {
 
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the HomePage! \nYou can use the following APIs to interact with the database. \n")
-	printstring := "GET http://localhost:10000/all - prints all entries in the database.\n"
-	printstring = printstring + "POST http://localhost:10000/host -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - create a new host \n"
-	printstring = printstring + "PUT http://localhost:10000/host/{id} -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - update an existing host \n"
-	printstring = printstring + "DELETE http://localhost:10000/host/{id} - detele a host based on ID \n"
-	printstring = printstring + "GET http://localhost:10000/host/{id} - returns a host in json format based on ID \n"
+	printstring := fmt.Sprintf("GET http://localhost:%d/all - prints all entries in the database.\n", dbport)
+	printstring = printstring + fmt.Sprintf("POST http://localhost:%d/host -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - create a new host \n", dbport)
+	printstring = printstring + fmt.Sprintf("PUT http://localhost:%d/host/{id} -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - update an existing host \n", dbport)
+	printstring = printstring + fmt.Sprintf("DELETE http://localhost:%d/host/{id} - detele a host based on ID \n", dbport)
+	printstring = printstring + fmt.Sprintf("GET http://localhost:%d/host/{id} - returns a host in json format based on ID \n", dbport)
 	fmt.Fprintf(w, printstring)
 	fmt.Println("Endpoint Hit: homePage")
 }
@@ -111,5 +112,6 @@ func main() {
 		log.Fatal("-db option must be supplied.")
 	}
 	dbpath = *dbLocation
-	handleRequests(*dbinsertPort)
+	dbport = *dbinsertPort
+	handleRequests(dbport)
 }

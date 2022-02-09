@@ -16,7 +16,7 @@ func checkErr(err error) {
 }
 
 type Host struct {
-	Id       int    `json: "id"`
+	Id       int    `json:"id"`
 	Hostname string `json:"hostname"`
 	Ip       string `json:"ip"`
 	Os       string `json:"os"`
