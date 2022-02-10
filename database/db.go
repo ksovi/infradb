@@ -81,10 +81,17 @@ func InstertIntoDB(hId int, hHostname string, hIp string, hOs string, hKernel st
 		fmt.Fprint(w, err)
 		return
 	} else {
-		id, err := res.LastInsertId()
+		rows_affected, err := res.RowsAffected()
 		checkErr(err)
-		stringtoprint := fmt.Sprintf("Inserted new host with ID %d \n", id)
-		fmt.Fprint(w, stringtoprint)
+		if rows_affected != 0 {
+			stringtoprint := fmt.Sprintf("Inserted new host with ID %d \n", hId)
+			fmt.Fprint(w, stringtoprint)
+			fmt.Println(stringtoprint)
+		} else {
+			fmt.Println("No host has been added to the DB. Check your data and try again.")
+			fmt.Fprint(w, "No host has been added to the DB. Check your data and try again.")
+			return
+		}
 	}
 	stringtoreturn := fmt.Sprintf("Added new host into the DB:  %d %s %s %s %s %s %v", hId, hHostname, hIp, hOs, hKernel, hEnv, is_vm)
 	fmt.Fprint(w, stringtoreturn)

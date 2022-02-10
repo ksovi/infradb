@@ -25,6 +25,7 @@ type Host struct {
 
 var dbpath string
 var dbport int
+var dbaddress string
 
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the HomePage! \nYou can use the following APIs to interact with the database. \n")
@@ -37,7 +38,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: homePage")
 }
 
-func handleRequests(dbPort int) {
+func handleRequests(dbPort int, dbaddress string) {
 	// creates a new instance of a mux router
 	myRouter := mux.NewRouter().StrictSlash(true)
 	// replace http.HandleFunc with myRouter.HandleFunc
@@ -47,12 +48,10 @@ func handleRequests(dbPort int) {
 	myRouter.HandleFunc("/host/{id}", updateHost).Methods("PUT")
 	myRouter.HandleFunc("/host/{id}", deleteHost).Methods("DELETE")
 	myRouter.HandleFunc("/host/{id}", returnSingleHost)
-
-	// finally, instead of passing in nil, we want
-	// to pass in our newly created router as the second
-	// argument
 	dbPortNumber := strconv.Itoa(dbPort)
-	log.Fatal(http.ListenAndServe(":"+dbPortNumber, myRouter))
+	connURL := fmt.Sprintf("%v:%s", dbaddress, dbPortNumber)
+	fmt.Println(fmt.Sprintf("Starting API at address http://%s:%s", dbaddress, dbPortNumber))
+	log.Fatal(http.ListenAndServe(connURL, myRouter))
 }
 
 func returnAllHosts(w http.ResponseWriter, r *http.Request) {
@@ -117,14 +116,16 @@ func deleteHost(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	fmt.Println("Started API v1.0")
-	dbinsertPort := flag.Int("port", 10000, "Port number the webserver will listen to.")
-	dbLocation := flag.String("db", "", "Path to the database.")
+	dbinsertPort := flag.Int("port", 10000, "Port number the API server will listen to. Default is 10000.")
+	dbAddress := flag.String("ip", "localhost", "IP (or hostname) to start the API server at. Default is localhost.")
+	dbLocation := flag.String("db", "", "Path to the database. Required flag.")
 	flag.Parse()
 	if *dbLocation == "" {
 		log.Fatal("-db option must be supplied.")
 	}
 	dbpath = *dbLocation
 	dbport = *dbinsertPort
+	dbaddress = *dbAddress
 	database.InitializeDB(dbpath)
-	handleRequests(dbport)
+	handleRequests(dbport, dbaddress)
 }
