@@ -2,11 +2,12 @@
 A simple API for sqlite in GO
 Examples:
 > go build
-> infradb.exe -db hosts.db -port 8080 &
+> infradb.exe -db hosts.db -port 8080 
 
 At this point the server is listening to port 8080.
 
-> curl -i -GET http://localhost:8080/
+> curl -i -GET http://localhost:8080/ 
+>
 > curl -i -GET http://localhost:8080/all
 
 ## Insert a new host into the DB:
