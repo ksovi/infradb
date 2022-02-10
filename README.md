@@ -36,7 +36,20 @@ At this point the server is listening to port 8080.
 }'
 
 ## Return an entry by ID:
-> curl -i -GET http://localhost:8080/host/1
+> curl -i -GET http://localhost:8080/host/1</br>
+HTTP/1.1 200 OK</br>
+Date: Thu, 10 Feb 2022 17:24:28 GMT</br>
+Content-Length: 156</br>
+Content-Type: text/plain; charset=utf-8</br>
+{</br>
+&emsp;  "id": 1,</br>
+&emsp;  "hostname": "ovios",</br>
+&emsp;  "ip": "192.168.1.102",</br>
+&emsp;  "os": "ovios linux 3.12",</br>
+&emsp;  "kernel": "linux 5.x",</br>
+&emsp;  "environment": "PROD",</br>
+&emsp;  "is_vm": true</br>
+}</br>
 
 ## Delete an entry by ID:
 
