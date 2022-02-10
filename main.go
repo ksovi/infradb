@@ -26,11 +26,6 @@ type Host struct {
 var dbpath string
 var dbport int
 
-func returnAllHosts(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: returnAllHosts")
-	database.DisplayAllEntries(w, dbpath)
-}
-
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the HomePage! \nYou can use the following APIs to interact with the database. \n")
 	printstring := fmt.Sprintf("GET http://localhost:%d/all - prints all entries in the database.\n", dbport)
@@ -41,6 +36,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, printstring)
 	fmt.Println("Endpoint Hit: homePage")
 }
+
 func handleRequests(dbPort int) {
 	// creates a new instance of a mux router
 	myRouter := mux.NewRouter().StrictSlash(true)
@@ -59,12 +55,28 @@ func handleRequests(dbPort int) {
 	log.Fatal(http.ListenAndServe(":"+dbPortNumber, myRouter))
 }
 
+func returnAllHosts(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: returnAllHosts")
+	database.DisplayAllEntries(w, dbpath)
+}
+
 func updateHost(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	// we will need to extract the `id` of the host we
+	// wish to delete
+	id := vars["id"]
+	myid, _ := strconv.Atoi(id)
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	var host Host
 	json.Unmarshal(reqBody, &host)
+	if myid != host.Id {
+		stringtoprint := fmt.Sprintf("Make sure the ID in the JSON document matches the ID entered in the URL! %d != %d ", host.Id, myid)
+		fmt.Println(stringtoprint)
+		fmt.Fprintf(w, stringtoprint)
+		return
+	}
 	// insert into DB
-	database.UpdateOneEntry(host.Id, host.Hostname, host.Ip, host.Os, host.Kernel, host.Env, host.Is_vm, dbpath)
+	database.UpdateOneEntry(host.Id, host.Hostname, host.Ip, host.Os, host.Kernel, host.Env, host.Is_vm, dbpath, w)
 }
 
 func returnSingleHost(w http.ResponseWriter, r *http.Request) {
@@ -88,24 +100,24 @@ func createNewHost(w http.ResponseWriter, r *http.Request) {
 	var host Host
 	json.Unmarshal(reqBody, &host)
 	// insert into DB
-	database.InstertIntoDB(host.Id, host.Hostname, host.Ip, host.Os, host.Kernel, host.Env, host.Is_vm, dbpath)
+	database.InstertIntoDB(host.Id, host.Hostname, host.Ip, host.Os, host.Kernel, host.Env, host.Is_vm, dbpath, w)
 }
 
 func deleteHost(w http.ResponseWriter, r *http.Request) {
 	// once again, we will need to parse the path parameters
 	vars := mux.Vars(r)
-	// we will need to extract the `id` of the article we
+	// we will need to extract the `id` of the host we
 	// wish to delete
 	id := vars["id"]
 	hId, _ := strconv.Atoi(id)
-	fmt.Println("deleting host with ID: ", hId)
-	database.DeleteOneEntry(hId, dbpath)
+	fmt.Println("Deleting host with ID: ", hId)
+	database.DeleteOneEntry(hId, dbpath, w)
 
 }
 
 func main() {
-	fmt.Println("Started API v1.0 dbinsert")
-	dbinsertPort := flag.Int("port", 10000, "Port number the application will listen to.")
+	fmt.Println("Started API v1.0")
+	dbinsertPort := flag.Int("port", 10000, "Port number the webserver will listen to.")
 	dbLocation := flag.String("db", "", "Path to the database.")
 	flag.Parse()
 	if *dbLocation == "" {
@@ -113,5 +125,6 @@ func main() {
 	}
 	dbpath = *dbLocation
 	dbport = *dbinsertPort
+	database.InitializeDB(dbpath)
 	handleRequests(dbport)
 }
