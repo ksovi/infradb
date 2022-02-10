@@ -1,10 +1,12 @@
 # infradb
-A simple API for sqlite in GO
-Examples:
-> go build
-> infradb.exe -db hosts.db -port 8080 
+A simple API for sqlite in GO</br>
 
-At this point the server is listening to port 8080.
+# Examples:</br>
+> go build</br>
+> infradb -db hosts.db -port 8080 </br>
+
+At this point the server is listening over port 8080.</br>
+Specify an IP or hostname using the -ip flag. Default is localhost. </br>
 
 > curl -i -GET http://localhost:8080/ 
 >
