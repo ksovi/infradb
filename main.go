@@ -29,11 +29,11 @@ var dbaddress string
 
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the HomePage! \nYou can use the following APIs to interact with the database. \n")
-	printstring := fmt.Sprintf("GET http://localhost:%d/all - prints all entries in the database.\n", dbport)
-	printstring = printstring + fmt.Sprintf("POST http://localhost:%d/host -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - create a new host \n", dbport)
-	printstring = printstring + fmt.Sprintf("PUT http://localhost:%d/host/{id} -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - update an existing host \n", dbport)
-	printstring = printstring + fmt.Sprintf("DELETE http://localhost:%d/host/{id} - detele a host based on ID \n", dbport)
-	printstring = printstring + fmt.Sprintf("GET http://localhost:%d/host/{id} - returns a host in json format based on ID \n", dbport)
+	printstring := fmt.Sprintf("GET http://%s:%d/all - prints all entries in the database.\n", dbaddress, dbport)
+	printstring = printstring + fmt.Sprintf("POST http://%s:%d/host -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - create a new host \n", dbaddress, dbport)
+	printstring = printstring + fmt.Sprintf("PUT http://%s:%d/host/{id} -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - update an existing host \n", dbaddress, dbport)
+	printstring = printstring + fmt.Sprintf("DELETE http://%s:%d/host/{id} - detele a host based on ID \n", dbaddress, dbport)
+	printstring = printstring + fmt.Sprintf("GET http://%s:%d/host/{id} - returns a host in json format based on ID \n", dbaddress, dbport)
 	fmt.Fprintf(w, printstring)
 	fmt.Println("Endpoint Hit: homePage")
 }
