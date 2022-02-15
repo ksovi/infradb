@@ -29,7 +29,7 @@ var dbaddress string
 
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the HomePage! \nYou can use the following APIs to interact with the database. \n")
-	printstring := fmt.Sprintf("GET http://%s:%d/all - prints all entries in the database.\n", dbaddress, dbport)
+	printstring := fmt.Sprintf("GET http://%s:%d/all - prints all entries in the database. Add /json at the end of the URL for json output.\n", dbaddress, dbport)
 	printstring = printstring + fmt.Sprintf("POST http://%s:%d/host -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - create a new host \n", dbaddress, dbport)
 	printstring = printstring + fmt.Sprintf("PUT http://%s:%d/host/{id} -d '{ Id: int, hostname: string, ip: string, os: string, kernel: string, environment: string, is_vm: bool }' - update an existing host \n", dbaddress, dbport)
 	printstring = printstring + fmt.Sprintf("DELETE http://%s:%d/host/{id} - detele a host based on ID \n", dbaddress, dbport)
@@ -44,6 +44,7 @@ func handleRequests(dbPort int, dbaddress string) {
 	// replace http.HandleFunc with myRouter.HandleFunc
 	myRouter.HandleFunc("/", homePage)
 	myRouter.HandleFunc("/all", returnAllHosts)
+	myRouter.HandleFunc("/all/json", returnAllHostsJson)
 	myRouter.HandleFunc("/host", createNewHost).Methods("POST")
 	myRouter.HandleFunc("/host/{id}", updateHost).Methods("PUT")
 	myRouter.HandleFunc("/host/{id}", deleteHost).Methods("DELETE")
@@ -57,6 +58,11 @@ func handleRequests(dbPort int, dbaddress string) {
 func returnAllHosts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: returnAllHosts")
 	database.DisplayAllEntries(w, dbpath)
+}
+
+func returnAllHostsJson(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: returnAllHostsjson")
+	database.DisplayAllEntriesJson(w, dbpath)
 }
 
 func updateHost(w http.ResponseWriter, r *http.Request) {

@@ -66,6 +66,38 @@ func DisplayAllEntries(w http.ResponseWriter, dbpath string) {
 	}
 }
 
+func DisplayAllEntriesJson(w http.ResponseWriter, dbpath string) {
+	db, err := sql.Open("sqlite3", dbpath)
+	checkErr(err)
+	// check if the db is populated or empty
+	row, err := db.Query("SELECT * FROM hostsdb")
+	checkErr(err)
+	defer row.Close()
+	if row.Next() == false {
+		fmt.Fprint(w, "No entries in the DB yet.")
+		return // if empty exit the endpoint here
+	}
+	// if not empty rerun the query and fetch all entries from the db
+	row, err = db.Query("SELECT * FROM hostsdb")
+	checkErr(err)
+	for row.Next() { // Iterate and fetch the records from result cursor
+		var id int
+		var hostname string
+		var ip string
+		var os string
+		var kernel string
+		var environment string
+		var is_vm bool
+		if err := row.Scan(&id, &hostname, &ip, &os, &kernel, &environment, &is_vm); err != nil {
+			checkErr(err)
+		}
+		host := Host{id, hostname, ip, os, kernel, environment, is_vm}
+		jhost, err := json.MarshalIndent(host, "", "  ")
+		checkErr(err)
+		fmt.Fprintf(w, string(jhost)+"\n")
+	}
+}
+
 func InstertIntoDB(hId int, hHostname string, hIp string, hOs string, hKernel string, hEnv string, is_vm bool, dbpath string, w http.ResponseWriter) {
 	// Connect to the database
 	db, err := sql.Open("sqlite3", dbpath)
